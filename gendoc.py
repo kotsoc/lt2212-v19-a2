@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfTransformer
+from assign1 import calc_vector
 
 # gendoc.py -- Don't forget to put a reasonable amount code comments
 # in so that we better understand what you're doing when we grade!
@@ -26,15 +27,33 @@ parser.add_argument("outputfile", type=str,
 
 args = parser.parse_args()
 
+## Parsing the top folder we expect  sub-folders inside it
+folders = os.listdir(args.foldername)
+
+## List to hold text vectors
+vectorList = []
+tfidList = []
 print("Loading data from directory {}.".format(args.foldername))
 
 if not args.basedims:
-    print("Using full vocabulary.")
+    topN = 0
 else:
     print("Using only top {} terms by raw count.".format(args.basedims))
+    topN = args.basedims
+
+for dir in folders:
+  dirPath = args.foldername+'/'+dir
+  if os.path.isdir(dirPath):
+    files = [dirPath+'/'+f for f in os.listdir(dirPath) if os.path.isfile(dirPath+'/'+f)]
+    ## Create the vector for each file
+    for file in files:
+      vectorList.append(calc_vector(file, topN))  
 
 if args.tfidf:
     print("Applying tf-idf to raw counts.")
+    for vec in vectorList:
+        bow_maxtrix = TfidfTransformer.fit_transform(vec)
+        tfidList.append(TfidfTransformer.transform(bow_maxtrix))
 
 if args.svddims:
     print("Truncating matrix to {} dimensions via singular value decomposition.".format(args.svddims))

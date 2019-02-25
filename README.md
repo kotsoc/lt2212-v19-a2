@@ -2,7 +2,7 @@
 
 From Asad Sayeed's statistical NLP course at the University of Gothenburg.
 
-My name: YOUR NAME HERE
+My name: Konstantinos Peratinos
 
 ## Additional instructions
 
