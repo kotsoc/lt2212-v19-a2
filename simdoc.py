@@ -39,6 +39,29 @@ while(linestoRead > 0):
     dataList.append(pd.read_csv(args.vectorfile, index_col=0, skiprows = skip, nrows=linestoRead))
     skip += linestoRead+3
     linestoRead = readDataFrameLines(args.vectorfile,skip-2)
-    print(linestoRead)
-    print(skip)
-print(classNameList)
+
+avgSelfCosSimList = []
+avgCrossCosSimList = []
+## Calculating Cos Similarities for each class with itself
+for k in range(len(classNameList)):
+    avgSim = 0.0
+    sum = 0
+    for i in range(len(dataList[k].values)):
+        for j in range(len(dataList[k].values)-1, i, -1):
+            avgSim += np.dot(dataList[k].values[i], dataList[k].values[j])
+            sum+=1
+    avgSelfCosSimList.append(avgSim/sum)
+
+## Calculating Cross-classs Cos Similarities for each class
+for k in range(len(classNameList)-1, 0, -1):
+    avgSim = 0.0
+    sum = 0
+    for i in range(len(dataList[k].values)):
+        for j in range(len(dataList[k-1].values)):
+            avgSim += np.dot(dataList[k].values[i], dataList[k-1].values[j])
+            sum+=1
+    avgCrossCosSimList.append(avgSim/sum)
+
+for k in range(len(classNameList)):
+    print("the average similarity of every document vector in class {} with itself is: {}".format(classNameList[k],avgSim/sum))
+    print("the cross similarity of every document vector in class {} with the other class is: {}".format(classNameList[k],avgSim/sum))

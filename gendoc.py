@@ -92,7 +92,7 @@ with open(format(args.outputfile), "w") as f:
         ##lines that each class takes
         lines = '{}'.format(len(dataFrameDict[dir].axes[0]))
         print(lines)
-        ### Writing Lines, Class name and then Dataframe as csv
+        ### Writing Lines, Class name and then Dataframe as csv 
         f.writelines([lines,'\n',dir,'\n'])
         f.write(dataFrameDict[dir].to_csv())
 
