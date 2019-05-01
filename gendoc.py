@@ -29,9 +29,10 @@ args = parser.parse_args()
 
 ## Parsing the top folder we expect  sub-folders inside it
 folders = os.listdir(args.foldername)
+print(folders)
 
 ## List to hold text vectors
-vectorList = []
+vectorMap = {}
 tfidList = []
 print("Loading data from directory {}.".format(args.foldername))
 
@@ -47,13 +48,17 @@ for dir in folders:
     files = [dirPath+'/'+f for f in os.listdir(dirPath) if os.path.isfile(dirPath+'/'+f)]
     ## Create the vector for each file
     for file in files:
-      vectorList.append(calc_vector(file, topN))  
-
+      ##Keeping just the name to avoid duplicates
+      justName = file.split("/")
+      vectorMap[justName[5]]= calc_vector(file, topN)
+    
 if args.tfidf:
+    transformer  = TfidfTransformer()
     print("Applying tf-idf to raw counts.")
     for vec in vectorList:
         bow_maxtrix = TfidfTransformer.fit_transform(vec)
         tfidList.append(TfidfTransformer.transform(bow_maxtrix))
+## Parsing the freq vectors to a dataframe
 
 if args.svddims:
     print("Truncating matrix to {} dimensions via singular value decomposition.".format(args.svddims))
@@ -62,3 +67,10 @@ if args.svddims:
 # PARAMETERS.
 
 print("Writing matrix to {}.".format(args.outputfile))
+dataFr = pd.DataFrame.from_dict(vectorMap)
+dataFr = dataFr.fillna(0)
+print(dataFr)
+with open(format(args.outputfile), "w") as f:
+    f.write(dataFr.to_string())
+
+
