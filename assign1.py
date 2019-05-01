@@ -32,7 +32,6 @@ def calc_vector(name, topN):
         topNFreqDict = {}
         for i in range(topN):
             topNFreqDict[sorted_list[i]] = freq_dict[sorted_list[i]]
-        print(len(topNFreqDict))
         return topNFreqDict
     else:
         return freq_dict

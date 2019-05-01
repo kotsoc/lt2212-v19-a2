@@ -6,6 +6,7 @@ import pandas as pd
 from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfTransformer
 from assign1 import calc_vector
+from sklearn.feature_extraction.text import CountVectorizer
 
 # gendoc.py -- Don't forget to put a reasonable amount code comments
 # in so that we better understand what you're doing when we grade!
@@ -34,43 +35,66 @@ print(folders)
 ## List to hold text vectors
 vectorMap = {}
 tfidList = []
+### Dict that hold all filenames belongig to the class
+classVectors={}
+featureNames={}
+
 print("Loading data from directory {}.".format(args.foldername))
 
-if not args.basedims:
-    topN = 0
-else:
+if args.basedims:
     print("Using only top {} terms by raw count.".format(args.basedims))
-    topN = args.basedims
 
+################### VECTORIZER ##############
+vectorizer = CountVectorizer(input='filename', lowercase=True, stop_words='english', max_features=args.basedims)
+
+### Getting the name of all files
 for dir in folders:
   dirPath = args.foldername+'/'+dir
   if os.path.isdir(dirPath):
-    files = [dirPath+'/'+f for f in os.listdir(dirPath) if os.path.isfile(dirPath+'/'+f)]
-    ## Create the vector for each file
-    for file in files:
-      ##Keeping just the name to avoid duplicates
-      justName = file.split("/")
-      vectorMap[justName[5]]= calc_vector(file, topN)
-    
+    filepaths = [dirPath+'/'+f for f in os.listdir(dirPath) if os.path.isfile(dirPath+'/'+f)]
+    word_vec = vectorizer.fit_transform(filepaths)
+    featureNames[dir] = vectorizer.get_feature_names()
+    classVectors[dir] = word_vec
+    ## Was using my own vectorizer initially from assign 1, but using sklearns vectorizer made things go smoother so i changed to it
+    #justName = file.split("/")
+    #vectorMap[justName[5]]= calc_vector(file, topN)
+
+################# TDIF ##############
 if args.tfidf:
     transformer  = TfidfTransformer()
     print("Applying tf-idf to raw counts.")
-    for vec in vectorList:
-        bow_maxtrix = TfidfTransformer.fit_transform(vec)
-        tfidList.append(TfidfTransformer.transform(bow_maxtrix))
-## Parsing the freq vectors to a dataframe
+    for dir in folders:
+        classVectors[dir] = TfidfTransformer().fit_transform(classVectors[dir])
+
+################# Dataframe from Vectorizer ##############
+dataFrameDict = {}
+for dir in folders:
+    dataFrameFromVectorizer = pd.DataFrame.from_records(classVectors[dir].A, columns=featureNames[dir])
+    dataFrameDict[dir] = dataFrameFromVectorizer
+
 
 if args.svddims:
-    print("Truncating matrix to {} dimensions via singular value decomposition.".format(args.svddims))
+    if((not args.basedims) or args.svddims < args.basedims ):
+        print("Truncating matrix to {} dimensions via singular value decomposition.".format(args.svddims))
+        truncSVD = TruncatedSVD(n_components=args.svddims)
+        for dir in folders:
+            classVectors[dir] = truncSVD.fit_transform(classVectors[dir])
+            dataFrameDict[dir] = pd.DataFrame.from_records(classVectors[dir])
+    else:
+        print("SVD dimensions should be fewer than the initial dimensions of WordMatrix. Skipping operation")
 
-# THERE ARE SOME ERROR CONDITIONS YOU MAY HAVE TO HANDLE WITH CONTRADICTORY
-# PARAMETERS.
+#print(dataFrameFromVectorizer)
 
 print("Writing matrix to {}.".format(args.outputfile))
-dataFr = pd.DataFrame.from_dict(vectorMap)
-dataFr = dataFr.fillna(0)
-print(dataFr)
+
 with open(format(args.outputfile), "w") as f:
-    f.write(dataFr.to_string())
+    for dir in folders:
+        ##lines that each class takes
+        lines = '{}'.format(len(dataFrameDict[dir].axes[0]))
+        print(lines)
+        ### Writing Lines, Class name and then Dataframe as csv
+        f.writelines([lines,'\n',dir,'\n'])
+        f.write(dataFrameDict[dir].to_csv())
+
 
 
