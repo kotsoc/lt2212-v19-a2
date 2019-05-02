@@ -15,6 +15,7 @@ takes. This was done in order to parse it succesfully with simdoc
 Files were names resultX.txt where X is the question number
 
 ## Results and discussion
+Simdoc need a bit of finetuning to function for uneven matrixes but i ran out of time
 
 ### Vocabulary restriction.
 
@@ -22,16 +23,16 @@ Well i did not think of it excessively just chose a shortened vocabulary of -B =
 
 ### Result table
 
-File names | Crude-Crude  | Grain-Grain | Crude-Grain | Grain-Crude 
+File names | Grain-Grain  | Crude-Crude| Crude-Grain | Grain-Crude 
 --- | --- | --- | --- | --- 
-result1.txt|0.37|0.33|0.31|0.31
-result2.txt|0.69|0.63|0.62|0.62
-result3.txt|0.11|0.10|0.07|0.07
-result4.txt|0.65|0.58|0.54|0.54
-result5.txt|0.50|0.46|0.42|0.42
-result6.txt|0.37|0.33|0.31|0.31
-result7.txt|0.26|0.22|0.18|0.18
-allfilestdifsvd1000|0.11|0.10|0.07|0.07
+result1.txt|-|-|-|-             ## Could not calculate due to different dimensions of the classes
+result2.txt|0.297|0.396|0.162|0.162
+result3.txt|-|-|-|-             ## Could not calculate due to different dimensions of the classese  
+result4.txt|0.226|0.248|0.171|0.171
+result5.txt|0.214|0.270|0.056|0.052
+result6.txt|-|-|-|-             ## Could not calculate due to different dimensions of the classes
+result7.txt|0.094|0.097|0.092|0.092
+result8.txt|0.11|0.10|0.07|0.07  ## Could not calculate due to different dimensions of the classes truncating to 1000 did not make them uniform
 
 ### The hypothesis in your own words
 

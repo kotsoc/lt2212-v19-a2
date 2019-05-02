@@ -42,26 +42,30 @@ while(linestoRead > 0):
 
 avgSelfCosSimList = []
 avgCrossCosSimList = []
+
 ## Calculating Cos Similarities for each class with itself
 for k in range(len(classNameList)):
+    cos_sim = cosine_similarity(dataList[k].values)
     avgSim = 0.0
     sum = 0
-    for i in range(len(dataList[k].values)):
-        for j in range(len(dataList[k].values)-1, i, -1):
-            avgSim += np.dot(dataList[k].values[i], dataList[k].values[j])
+    for i in range(len(cos_sim)):
+       # temp = 0.0
+        for j in range(len(cos_sim[i])):
+            avgSim += cos_sim[i][j]
             sum+=1
     avgSelfCosSimList.append(avgSim/sum)
 
 ## Calculating Cross-classs Cos Similarities for each class
 for k in range(len(classNameList)-1, 0, -1):
+    cos_sim = cosine_similarity(dataList[k].values, dataList[k-1].values)
     avgSim = 0.0
     sum = 0
-    for i in range(len(dataList[k].values)):
-        for j in range(len(dataList[k-1].values)):
-            avgSim += np.dot(dataList[k].values[i], dataList[k-1].values[j])
+    for i in range(len(cos_sim)):
+        for j in range(len(cos_sim[i])):
+            avgSim += cos_sim[i][j]
             sum+=1
     avgCrossCosSimList.append(avgSim/sum)
 
 for k in range(len(classNameList)):
-    print("the average similarity of every document vector in class {} with itself is: {}".format(classNameList[k],avgSim/sum))
-    print("the cross similarity of every document vector in class {} with the other class is: {}".format(classNameList[k],avgSim/sum))
+    print("the average similarity of every document vector in class {} with itself is: {}".format(classNameList[k],avgSelfCosSimList[k]))
+print("the cross similarity of every document vector in class {} with the class {} is: {}".format(classNameList[0],classNameList[1], avgCrossCosSimList[0]))
